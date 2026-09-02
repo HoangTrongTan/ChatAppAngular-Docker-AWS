@@ -1,0 +1,30 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# npm ci sẽ cài đặt các dependencies được liệt kê trong package-lock.json, đảm bảo rằng các phiên bản 
+# của các gói được cài đặt chính xác như trong file lock. Nó cũng xóa node_modules hiện tại 
+# trước khi cài đặt lại, giúp tránh các vấn đề về xung đột phiên bản.
+RUN npm ci
+
+COPY . .
+
+RUN npm run build -- --configuration production
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN npm install -g serve
+
+COPY --from=builder /app/dist/chat-app/browser ./dist
+
+EXPOSE 80
+
+# serve là thư viện vừa cài
+# -s bật chế độ SPA
+# dist là thư mục build ra từ bước trước
+# -l là port mà server sẽ lắng nghe
+CMD ["serve", "-s", "dist", "-l", "80"]

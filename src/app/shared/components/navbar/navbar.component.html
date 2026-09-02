@@ -1,0 +1,78 @@
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-gray-900/80 backdrop-blur-xl border-b border-white/10 flex items-center px-4 gap-4">
+
+  <!-- Logo -->
+  <div class="flex items-center gap-2 mr-2 flex-shrink-0">
+    <span class="text-2xl">💬</span>
+    <span class="text-white font-bold text-lg tracking-tight hidden sm:block">ChatRoom</span>
+  </div>
+
+  <!-- Avatar strip (6 mascots hardcoded) -->
+  <div class="flex items-center gap-2 flex-1 overflow-x-auto py-1" style="scrollbar-width:none">
+    @for (avatar of avatars; track avatar.index) {
+      <div
+        class="relative flex-shrink-0 cursor-pointer group"
+        [title]="avatar.name"
+        (click)="selectAvatar(avatar.index)"
+      >
+        <img
+          [src]="avatar.url"
+          [alt]="avatar.name"
+          [class]="(avatar.index === currentAvatarIndex()
+            ? 'ring-2 ring-violet-400 ring-offset-2 ring-offset-gray-900'
+            : '') + ' w-9 h-9 rounded-full object-cover border-2 border-transparent group-hover:border-violet-400 transition-all duration-200 group-hover:scale-110'"
+        >
+        @if (isOnlineAvatar(avatar.index)) {
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-900"></span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Connection status -->
+  <div class="flex items-center gap-1.5 text-xs flex-shrink-0">
+    <span
+      class="w-2 h-2 rounded-full animate-pulse"
+      [class.bg-emerald-400]="isConnected()"
+      [class.bg-red-400]="!isConnected()"
+    ></span>
+    <span class="text-gray-400 hidden sm:block">{{ isConnected() ? 'Connected' : 'Offline' }}</span>
+  </div>
+
+  <!-- Current user avatar + name -->
+  @if (isLoggedIn()) {
+    <div class="flex items-center gap-2 flex-shrink-0 cursor-pointer group" (click)="showPicker.set(true)">
+      <img
+        [src]="currentAvatar().url"
+        [alt]="currentAvatar().name"
+        class="w-9 h-9 rounded-full object-cover border-2 border-violet-500 group-hover:border-violet-300 transition-all"
+      >
+      <div class="hidden sm:block">
+        <p class="text-white text-sm font-semibold leading-none">{{ username() }}</p>
+        <p class="text-violet-400 text-xs">Change avatar</p>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <button
+      id="btn-logout"
+      (click)="logout()"
+      class="flex-shrink-0 p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
+      title="Logout"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+    </button>
+  }
+</nav>
+
+<!-- Avatar picker dialog -->
+@if (showPicker()) {
+  <app-avatar-picker
+    [currentIndex]="currentAvatarIndex()"
+    (selected)="onAvatarSelected($event)"
+    (closed)="showPicker.set(false)"
+  ></app-avatar-picker>
+}

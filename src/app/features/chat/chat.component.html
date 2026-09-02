@@ -1,0 +1,109 @@
+<div class="flex h-full bg-gray-950 overflow-hidden">
+
+  <!-- ── Sidebar: Online Users ───────────────────────────────── -->
+  <aside class="hidden lg:flex flex-col w-64 bg-gray-900/60 border-r border-white/10 flex-shrink-0">
+    <div class="p-4 border-b border-white/10">
+      <h3 class="text-white font-semibold text-sm flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Online
+        <span class="ml-auto text-xs text-emerald-400 font-bold">{{ onlineUsers().length }}</span>
+      </h3>
+    </div>
+    <div class="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin" [@listStagger]="onlineUsers().length">
+      @for (user of onlineUsers(); track user.username) {
+        <div @userJoin class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+          <div class="relative">
+            <img
+              [src]="getAvatarUrl(user.avatarIndex)"
+              [alt]="user.username"
+              class="w-9 h-9 rounded-full object-cover border border-white/10"
+            >
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-900"></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white truncate">{{ user.username }}</p>
+            <p class="text-xs text-gray-500">Online</p>
+          </div>
+          @if (user.username === currentUsername()) {
+            <span class="text-xs bg-violet-600/30 text-violet-300 px-1.5 py-0.5 rounded-full">You</span>
+          }
+        </div>
+      }
+      @if (onlineUsers().length === 0) {
+        <p class="text-center text-gray-600 text-sm py-8">No one online yet</p>
+      }
+    </div>
+  </aside>
+
+  <!-- ── Main Chat Area ──────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Room header -->
+    <div @slideUp class="px-4 py-3 border-b border-white/10 bg-gray-900/40 backdrop-blur flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-violet-600/20 flex items-center justify-center">
+        <span class="text-violet-300 text-lg">#</span>
+      </div>
+      <div>
+        <h2 class="text-white font-bold text-sm">{{ currentRoom() }}</h2>
+        <p class="text-xs text-gray-500">{{ onlineUsers().length }} member{{ onlineUsers().length !== 1 ? 's' : '' }} online</p>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2">
+        @if (!isConnected()) {
+          <span class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-full animate-pulse flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+            Connecting…
+          </span>
+        }
+      </div>
+
+      <!-- Mobile online count -->
+      <div class="flex items-center gap-1.5 lg:hidden">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+        <span class="text-xs text-gray-400">{{ onlineUsers().length }}</span>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div
+      #scrollContainer
+      class="flex-1 overflow-y-auto px-4 py-6 space-y-4 scrollbar-thin"
+    >
+      @if (messages().length === 0 && isConnected()) {
+        <div @pulse class="flex flex-col items-center justify-center h-full text-center">
+          <div class="w-20 h-20 rounded-2xl bg-violet-600/10 flex items-center justify-center mb-4">
+            <span class="text-4xl">💬</span>
+          </div>
+          <h3 class="text-white font-semibold mb-2">No messages yet</h3>
+          <p class="text-gray-500 text-sm">Be the first to say something!</p>
+        </div>
+      }
+
+      @if (!isConnected()) {
+        <div class="flex flex-col items-center justify-center h-full text-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-gray-400 font-medium">Connecting to server…</p>
+            <p class="text-gray-600 text-sm mt-1">Make sure the backend is running on <span class="text-violet-400 font-mono">localhost:3000</span></p>
+          </div>
+        </div>
+      }
+
+      <div [@listStagger]="messages().length">
+        @for (msg of messages(); track msg.id) {
+          <div @messageEnter>
+            <app-message-bubble [message]="msg"></app-message-bubble>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Input -->
+    <app-message-input (sendMessage)="onSend($event)"></app-message-input>
+  </div>
+</div>

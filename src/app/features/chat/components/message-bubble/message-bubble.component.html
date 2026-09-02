@@ -1,0 +1,31 @@
+<div
+  class="flex items-end gap-2 max-w-[80%]"
+  [class.ml-auto]="message.isMine"
+  [class.flex-row-reverse]="message.isMine"
+>
+  <!-- Avatar -->
+  <img
+    [src]="avatarUrl"
+    [alt]="message.sender"
+    class="w-8 h-8 rounded-full object-cover flex-shrink-0 mb-1 border border-white/10"
+  >
+
+  <!-- Bubble -->
+  <div class="flex flex-col" [class.items-end]="message.isMine">
+    @if (!message.isMine) {
+      <span class="text-xs text-gray-400 mb-1 px-1">{{ message.sender }}</span>
+    }
+    <div
+      class="relative px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-lg max-w-xs sm:max-w-sm break-words"
+      [class.bg-violet-600]="message.isMine"
+      [class.text-white]="message.isMine"
+      [class.rounded-br-sm]="message.isMine"
+      [class.bg-gray-800]="!message.isMine"
+      [class.text-gray-100]="!message.isMine"
+      [class.rounded-bl-sm]="!message.isMine"
+    >
+      {{ message.content }}
+    </div>
+    <span class="text-xs text-gray-500 mt-1 px-1">{{ message.timestamp | date: 'HH:mm' }}</span>
+  </div>
+</div>
