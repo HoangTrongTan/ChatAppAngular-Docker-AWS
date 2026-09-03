@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # dùng ci vì cài nhanh hơn install, dùng ci thì phải đi kèm với package-lock.json
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
 COPY . .
 
