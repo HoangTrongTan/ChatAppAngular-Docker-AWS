@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: '${API_URL}',
-  hubUrl: '${HUB_URL}',
+  apiUrl: '/api',
+  hubUrl: '/hubs/chat',
   defaultRoom: 'general',
 };
